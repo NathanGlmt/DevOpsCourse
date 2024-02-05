@@ -1,0 +1,51 @@
+version: "3.7"
+
+services:
+  backend:
+    build:
+      context: ./backend/simple-api-student-main
+    ports: 
+      - "8081:8080"
+    networks:
+      - app-network
+    depends_on:
+      - database
+    container_name: backendapistudent
+
+  database:
+    build:
+      context: ./database
+    environment:
+      - POSTGRES_PASSWORD=pwd
+    ports: 
+      - "8888:5432"
+    networks:
+      - app-network
+    volumes:
+      - dataDir:/var/lib/postgresql/data
+    container_name: myfirstpostgres
+
+  httpd:
+    build:
+      context: ./httpd/website
+    ports:
+      - "5050:80"
+    networks:
+      - app-network
+    depends_on:
+      - backend
+    container_name: mypreciouswebsite
+
+  adminer:
+    image: adminer
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - 8090:8080
+
+networks:
+  app-network:
+
+volumes:
+  dataDir:
