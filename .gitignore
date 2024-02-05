@@ -1,0 +1,2 @@
+# IGNORE DATABASE VOLUME
+./docker/database/data
