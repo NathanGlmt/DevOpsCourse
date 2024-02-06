@@ -34,4 +34,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: ./docker/backend/simple-api-student-main/
-          tags: ${{secrets.DOCKER_LOGIN}}/backendapistudent:latest
+          tags: ${{secrets.DOCKERHUB_USERNAME}}/backendapistudent:latest
