@@ -1,9 +1,11 @@
 name: Build and Push Docker Image
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Test Backend"]
+    types:
+      - completed
+    branches: [main]
 
 jobs:
   build-and-push-docker-image:
