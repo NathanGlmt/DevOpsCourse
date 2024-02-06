@@ -35,3 +35,4 @@ jobs:
         with:
           context: ./docker/backend/simple-api-student-main/
           tags: ${{secrets.DOCKERHUB_USERNAME}}/backendapistudent:latest
+          
