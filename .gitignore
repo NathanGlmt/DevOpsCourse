@@ -1,5 +1,5 @@
 # IGNORE DATABASE VOLUME
-./docker/database/data
+docker/database/data
 
 # IGNORE TARGET
 **/target/**
