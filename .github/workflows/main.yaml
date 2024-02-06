@@ -20,4 +20,4 @@ jobs:
           java-version: '17'
 
       - name: Build and test with Maven
-        run: mvn clean install
+        run: mvn clean install --file ./docker/backend/simple-api-student-main/
