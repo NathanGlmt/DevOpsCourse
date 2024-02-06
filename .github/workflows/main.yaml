@@ -35,4 +35,15 @@ jobs:
         with:
           context: ./docker/backend/simple-api-student-main/
           tags: ${{secrets.DOCKERHUB_USERNAME}}/backendapi:latest
+      - name: Build image and push database
+        uses: docker/build-push-action@v3
+        with:
+          context: ./docker/database/
+          tags: ${{secrets.DOCKERHUB_USERNAME}}/backendapi:latest
 
+      - name: Build image and push httpd
+        uses: docker/build-push-action@v3
+        with:
+          context: ./docker/httpd/website/
+          tags: ${{secrets.DOCKERHUB_USERNAME}}/backendapi:latest
+     # DO the same for httpd
