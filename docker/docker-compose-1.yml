@@ -2,7 +2,8 @@ version: "3.7"
 
 services:
   backend:
-    image: nathanglmt/backendapi:1.1
+    build:
+      context: ./backend/simple-api-student-main
     environment:
       - POSTGRES_USR=usr
       - POSTGRES_DB=db
@@ -15,14 +16,13 @@ services:
     container_name: backendapistudent
 
   database:
-    image: nathanglmt/postgres-database:1.0
+    build:
+      context: ./database
     environment:
       - POSTGRES_USR=usr
       - POSTGRES_DB=db
       - POSTGRES_URL=myfirstpostgres:5432
       - POSTGRES_PASSWORD=pwd
-    ports: 
-      - "8888:5432"
     networks:
       - app-network
     volumes:
@@ -30,7 +30,8 @@ services:
     container_name: myfirstpostgres
 
   httpd:
-    image: nathanglmt/httpd:1.0
+    build:
+      context: ./httpd/website
     ports:
       - "5050:80"
     networks:
