@@ -65,7 +65,6 @@ jobs:
         with:
           context: ./docker/database/
           tags: ${{secrets.DOCKERHUB_USERNAME}}/postgres-database:latest
-          tags:  ${{secrets.DOCKERHUB_USERNAME}}/backendapi:latest
           # build on feature branches, push only on main branch
           push: ${{ github.ref == 'refs/heads/main' }}
 
