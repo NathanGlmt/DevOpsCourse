@@ -22,3 +22,23 @@ jobs:
           
       - name: Build and test with Maven
         run: mvn clean install --file docker/backend/simple-api-student-main/
+
+# define job to build and publish docker image
+build-and-push-docker-image:
+ needs: test-backend
+ # run only when code is compiling and tests are passing
+ runs-on: ubuntu-22.04
+
+ # steps to perform in job
+ steps:
+   - name: Checkout code
+     uses: actions/checkout@v2.5.0
+
+   - name: Build image and push backend
+     uses: docker/build-push-action@v3
+     with:
+       # relative path to the place where source code with Dockerfile is located
+       context: ./docker/backend/simple-api-student-main/
+       # Note: tags has to be all lower-case
+       tags:  ${{secrets.DOCKER_USR}}/tp-devops-simple-api:latest
+
