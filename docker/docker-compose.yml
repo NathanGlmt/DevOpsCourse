@@ -19,7 +19,6 @@ services:
     environment:
       - POSTGRES_USR=usr
       - POSTGRES_DB=db
-      - POSTGRES_URL=myfirstpostgres:5432
       - POSTGRES_PASSWORD=pwd
     ports: 
       - "8888:5432"

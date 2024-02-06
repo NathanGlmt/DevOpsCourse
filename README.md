@@ -30,3 +30,103 @@ docker run \
 -d \
 nathanglmt/myfirstpostgres
 ```
+
+## Backend simple api
+On fait du multistage car il est nécessaire de build le java avec un jdk dans un premier temps avant de lancer le jar.
+
+```
+# Build
+# On utilise une image de maven
+FROM maven:3.8.6-amazoncorretto-17 AS myapp-build
+
+# On définit une variable d'environnement MYAPP_HOME et indique comme environnement de travail
+ENV MYAPP_HOME /opt/myapp
+WORKDIR $MYAPP_HOME
+
+# On copie le pom et les sources dans le container
+COPY pom.xml .
+COPY src ./src
+
+# On package l'application en .jar, sans lancer les tests unitaires
+RUN mvn package -DskipTests
+
+
+# Run
+# On utilise une image d'openjdk
+FROM amazoncorretto:17
+
+# On définit une variable d'environnement MYAPP_HOME et indique comme environnement de travail
+ENV MYAPP_HOME /opt/myapp
+WORKDIR $MYAPP_HOME
+
+# On copie le jar généré par le container myapp-build dans notre environnement de travail.
+COPY --from=myapp-build $MYAPP_HOME/target/*.jar $MYAPP_HOME/myapp.jar
+
+# On démarre le SpringBoot 
+ENTRYPOINT java -jar myapp.jar
+```
+
+## 1-3 Document docker-compose most important commands
+- **docker-compose up:**
+Démarrer les conteneurs définis dans le fichier docker-compose.yml.
+ - **docker-compose down:**
+Arrêtez et supprimez les conteneurs, les réseaux et les volumes définis dans le fichier docker-compose.yml.
+- **docker-compose ps:**
+Liste l'état des conteneurs définis dans le fichier docker-compose.yml.
+
+## 1-4 Document your docker-compose file
+Voici mon docker-compose :
+```
+version: "3.7"
+
+services:
+  backend:
+    build:
+      context: ./backend/simple-api-student-main
+    ports: 
+      - "8081:8080"
+    networks:
+      - app-network
+    depends_on:
+      - database
+    container_name: backendapistudent
+
+  database:
+    build:
+      context: ./database
+    environment:
+      - POSTGRES_PASSWORD=pwd
+    ports: 
+      - "8888:5432"
+    networks:
+      - app-network
+    volumes:
+      - dataDir:/var/lib/postgresql/data
+    container_name: myfirstpostgres
+
+  httpd:
+    build:
+      context: ./httpd/website
+    ports:
+      - "5050:80"
+    networks:
+      - app-network
+    depends_on:
+      - backend
+    container_name: mypreciouswebsite
+
+  adminer:
+    image: adminer
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - 8090:8080
+
+networks:
+  app-network:
+
+volumes:
+  dataDir:
+
+```
