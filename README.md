@@ -134,4 +134,193 @@ volumes:
 
 # TP3 - Ansible
 Contenu de mon setup.yml : 
+
 ![image](https://github.com/NathanGlmt/DevOpsCourse/assets/74351197/fff89fc5-f2a4-4adf-b1c0-9938ea61a7fc)
+
+ansible all -i inventories/setup.yml -m setup -a "filter=ansible_distribution*"
+
+ansible all -i inventories/setup.yml -m yum -a "name=httpd state=absent" --become
+
+![image](https://github.com/NathanGlmt/DevOpsCourse/assets/74351197/03eb6c7e-278d-4753-9f88-1d7e6cba078c)
+
+## 3-2 Document your playbook
+
+playbook.yml
+```yml
+- hosts: all
+  gather_facts: false
+  become: true
+  
+  roles: docker
+```
+
+roles/docker/tasks/main.yml
+```yml
+---
+# tasks file for roles/docker
+
+- name: Install device-mapper-persistent-data
+  yum:
+    name: device-mapper-persistent-data
+    state: latest
+
+- name: Install lvm2
+  yum:
+    name: lvm2
+    state: latest
+
+- name: add repo docker
+  command:
+    cmd: sudo yum-config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+
+- name: Install Docker
+  yum:
+    name: docker-ce
+    state: present
+
+- name: Install python3
+  yum:
+    name: python3
+    state: present
+
+- name: Install docker with Python 3
+  pip:
+    name: docker
+    executable: pip3
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+- name: Make sure Docker is running
+  service: name=docker state=started
+  tags: docker
+```
+
+## 3-3 Document your docker_container tasks configuration
+inventories/setup.yml
+```yml
+all:
+ vars:
+   ansible_user: centos
+   ansible_ssh_private_key_file: /home/nathan/CPE/DevOpsCourse/.ssh/id_rsa
+   POSTGRES_USR: "usr"
+   POSTGRES_DB: "db"
+   POSTGRES_PASSWORD: "pwd"
+   POSTGRES_URL: "database:5432"
+ children:
+   prod:
+     hosts: centos@nathan.guillemette.takima.cloud
+```
+
+roles/docker/tasks/main.yml
+```yml
+---
+# tasks file for roles/docker
+
+- name: Install device-mapper-persistent-data
+  yum:
+    name: device-mapper-persistent-data
+    state: latest
+
+- name: Install lvm2
+  yum:
+    name: lvm2
+    state: latest
+
+- name: add repo docker
+  command:
+    cmd: sudo yum-config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+
+- name: Install Docker
+  yum:
+    name: docker-ce
+    state: present
+
+- name: Install python3
+  yum:
+    name: python3
+    state: present
+
+- name: Install docker with Python 3
+  pip:
+    name: docker
+    executable: pip3
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+- name: Make sure Docker is running
+  service: name=docker state=started
+  tags: docker
+```
+
+roles/create_networks/tasks/main.yml
+```yml
+---
+# tasks file for roles/create_network
+- name: Create Docker Network
+  docker_network:
+    name: my_network
+```
+
+roles/launch_app/tasks/main.yml
+```yml
+---
+# tasks file for roles/launch_app
+- name: Run App
+  community.docker.docker_container:
+    name: backendapistudent
+    image: nathanglmt/backendapi:1.1
+    networks:
+      - name: "my_network"
+    env:
+      POSTGRES_USR: "{{ POSTGRES_USR }}"
+      POSTGRES_DB: "{{ POSTGRES_DB }}"
+      POSTGRES_PASSWORD: "{{ POSTGRES_PASSWORD }}"
+      POSTGRES_URL: "{{ POSTGRES_URL }}"
+```
+
+roles/launch_database/tasks/main.yml
+```yml
+---
+# tasks file for roles/launch_database
+- name: Run Database
+  community.docker.docker_container:
+    name: database
+    image: nathanglmt/postgres-database:1.0
+    networks:
+      - name: "my_network"
+    env:
+      POSTGRES_USR: "{{ POSTGRES_USR }}"
+      POSTGRES_DB: "{{ POSTGRES_DB }}"
+      POSTGRES_PASSWORD: "{{ POSTGRES_PASSWORD }}"
+    volumes:
+      - /data
+```
+
+roles/launch_proxy/tasks/main.yml
+```yml
+---
+# tasks file for roles/launch_proxy
+- name: Run HTTPD
+  community.docker.docker_container:
+    name: httpd
+    image: nathanglmt/httpd:1.0
+    ports:
+      - "80:80"
+    networks:
+      - name: "my_network"
+```
+
+playbook.yml
+```yml
+- hosts: all
+  gather_facts: false
+  become: true
+
+  roles:
+    - docker
+    - create_network
+    - launch_database
+    - launch_app
+    - launch_proxy
+```
+
