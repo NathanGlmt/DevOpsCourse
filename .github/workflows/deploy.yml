@@ -1,7 +1,7 @@
 name: deploy
 on:
   workflow_run:
-    workflows: ["build-and-push-docker-image"]
+    workflows: ["Build and Push Docker Image"]
     types:
       - completed
     branches: 
