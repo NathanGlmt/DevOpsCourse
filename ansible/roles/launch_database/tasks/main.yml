@@ -1,0 +1,14 @@
+---
+# tasks file for roles/launch_database
+- name: Run Database
+  community.docker.docker_container:
+    name: database
+    image: nathanglmt/postgres-database:1.0
+    networks:
+      - name: "my_network"
+    env:
+      POSTGRES_USR: "{{ POSTGRES_USR }}"
+      POSTGRES_DB: "{{ POSTGRES_DB }}"
+      POSTGRES_PASSWORD: "{{ POSTGRES_PASSWORD }}"
+    volumes:
+      - /data

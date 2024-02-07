@@ -1,0 +1,10 @@
+---
+# tasks file for roles/launch_proxy
+- name: Run HTTPD
+  community.docker.docker_container:
+    name: httpd
+    image: nathanglmt/httpd:1.0
+    ports:
+      - "80:80"
+    networks:
+      - name: "my_network"
