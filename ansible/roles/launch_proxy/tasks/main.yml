@@ -3,7 +3,7 @@
 - name: Run HTTPD
   community.docker.docker_container:
     name: httpd
-    image: nathanglmt/httpd:1.0
+    image: nathanglmt/httpd:1.1
     ports:
       - "80:80"
     networks:
