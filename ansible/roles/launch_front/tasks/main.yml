@@ -3,10 +3,6 @@
 - name: Run Front
   community.docker.docker_container:
     name: front
-    image: nathanglmt/devops-front-main:1.0
+    image: nathanglmt/devops-front-main:1.5
     networks:
       - name: "my_network"
-    env:
-      VUE_APP_API_URL: "backendapistudent:8080"
-    volumes:
-      - /data

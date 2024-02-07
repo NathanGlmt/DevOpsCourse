@@ -9,3 +9,5 @@
     - launch_app
     - launch_front
     - launch_proxy
+  vars:
+    ansible_user: "{{ ansible_user }}"

@@ -3,8 +3,13 @@
 - name: Run HTTPD
   community.docker.docker_container:
     name: httpd
-    image: nathanglmt/httpd:1.1
+    image: nathanglmt/httpd:1.3
     ports:
       - "80:80"
     networks:
       - name: "my_network"
+    state: started 
+    recreate: true
+    pull: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python
