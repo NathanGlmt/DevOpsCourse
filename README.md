@@ -130,3 +130,8 @@ volumes:
   dataDir:
 
 ```
+
+
+# TP3 - Ansible
+Contenu de mon setup.yml : 
+![image](https://github.com/NathanGlmt/DevOpsCourse/assets/74351197/fff89fc5-f2a4-4adf-b1c0-9938ea61a7fc)
