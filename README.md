@@ -34,7 +34,7 @@ nathanglmt/myfirstpostgres
 ## Backend simple api
 On fait du multistage car il est nécessaire de build le java avec un jdk dans un premier temps avant de lancer le jar.
 
-```
+``` yml
 # Build
 # On utilise une image de maven
 FROM maven:3.8.6-amazoncorretto-17 AS myapp-build
