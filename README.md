@@ -134,7 +134,12 @@ volumes:
   dataDir:
 
 ```
+# TP2 - Github Actions
+## 2-1 What are testcontainers
 
+## 2-2 Document your Github Actions configurations
+
+## 2-3 Document your quality gate configuration
 
 # TP3 - Ansible
 Contenu de mon setup.yml : 
