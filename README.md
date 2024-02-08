@@ -80,66 +80,88 @@ Liste l'état des conteneurs définis dans le fichier docker-compose.yml.
 
 ## 1-4 Document your docker-compose file
 Voici mon docker-compose :
-```
+```yml
 version: "3.7"
 
 services:
+  # Service backend : application principale
   backend:
     build:
-      context: ./backend/simple-api-student-main
+      context: ./backend/simple-api-student-main # Chemin vers le Dockerfile pour construire l'image
     ports: 
-      - "8081:8080"
+      - "8081:8080" # Mapping de port : port de l'hôte -> port du conteneur
     networks:
-      - app-network
+      - app-network # Liaison au réseau spécifié
     depends_on:
-      - database
-    container_name: backendapistudent
+      - database # Dépendance envers le service 'database'
+    container_name: backendapistudent # Nom du conteneur
 
+  # Service database : base de données PostgreSQL
   database:
     build:
-      context: ./database
+      context: ./database # Chemin vers le Dockerfile pour construire l'image
     environment:
-      - POSTGRES_PASSWORD=pwd
+      - POSTGRES_PASSWORD=pwd # Définition de la variable d'environnement
     ports: 
-      - "8888:5432"
+      - "8888:5432" # Mapping de port : port de l'hôte -> port du conteneur
     networks:
-      - app-network
+      - app-network # Liaison au réseau spécifié
     volumes:
-      - dataDir:/var/lib/postgresql/data
-    container_name: myfirstpostgres
+      - dataDir:/var/lib/postgresql/data # Montage d'un volume pour stocker les données persistantes
+    container_name: myfirstpostgres # Nom du conteneur
 
+  # Service httpd : serveur web Apache
   httpd:
     build:
-      context: ./httpd/website
+      context: ./httpd/website # Chemin vers le Dockerfile pour construire l'image
     ports:
-      - "5050:80"
+      - "5050:80" # Mapping de port : port de l'hôte -> port du conteneur
     networks:
-      - app-network
+      - app-network # Liaison au réseau spécifié
     depends_on:
-      - backend
-    container_name: mypreciouswebsite
+      - backend # Dépendance envers le service 'backend'
+    container_name: mypreciouswebsite # Nom du conteneur
 
+  # Service adminer : interface d'administration de base de données
   adminer:
-    image: adminer
-    restart: always
+    image: adminer # Utilisation de l'image Docker 'adminer' directement
+    restart: always # Redémarrage automatique du conteneur en cas d'échec
     networks:
-      - app-network
+      - app-network # Liaison au réseau spécifié
     ports:
-      - 8090:8080
+      - 8090:8080 # Mapping de port : port de l'hôte -> port du conteneur
 
+# Définition du réseau pour les services
 networks:
   app-network:
 
+# Définition du volume pour stocker les données de la base de données
 volumes:
   dataDir:
 
 ```
+
+## 1-5 Document your publication commands and published images in dockerhub
+```
+docker tag nathanglmt/database nathanglmt/postgres-database:1.0
+docker tag nathanglmt/backapistudent nathanglmt/backapistudent:1.0
+docker tag nathanglmt/httpd nathanglmt/httpd:1.0
+```
+Ces commandes enregistent les images (anaisdelcamp/database par exemple) sous un autre nom suivit du numero de la version de l'image (anaisdelcamp/tp1-database:1.0)
+```
+docker push nathanglmt/postgres-database:1.0
+docker push nathanglmt/backapistudent:1.0
+docker push nathanglmt/httpd:1.0
+```
 # TP2 - Github Actions
 ## 2-1 What are testcontainers
+Testcontainers est une bibliothèque Java qui permet d’instancier un conteneur Docker lors des tests, qui permet de fournir des instances légères et jetables de base de données. 
 
 ## 2-2 Document your Github Actions configurations
 
+
 ## 2-3 Document your quality gate configuration
+
 
 # TP3 - Ansible
 Contenu de mon setup.yml : 
