@@ -210,25 +210,60 @@ mvn -B verify sonar:sonar -Dsonar.projectKey=NathanGlmt_DevOpsCourse -Dsonar.org
 # 
 ```
 # TP3 - Ansible
-Contenu de mon setup.yml : 
+## 3-1 Document your inventory and base commands
+Contenu de mon inventories/setup.yml : 
+```tag
+all:
+  # Groupe 'all' contenant les variables et les hôtes pour tous les environnements.
+  vars:
+    # Variables communes à tous les environnements.
+    ansible_user: centos
+    # Nom d'utilisateur SSH utilisé pour se connecter aux hôtes.
 
-![image](https://github.com/NathanGlmt/DevOpsCourse/assets/74351197/fff89fc5-f2a4-4adf-b1c0-9938ea61a7fc)
+    ansible_ssh_private_key_file: /home/nathan/CPE/DevOpsCourse/.ssh/id_rsa
+    # Chemin vers la clé privée SSH utilisée pour l'authentification.
 
-ansible all -i inventories/setup.yml -m setup -a "filter=ansible_distribution*"
+  children:
+    # Groupes d'environnements.
+    prod:
+      # Groupe 'prod' contenant les hôtes de production.
+      hosts: centos@nathan.guillemette.takima.cloud
+      # Liste des hôtes de production avec leur adresse et nom d'utilisateur SSH.
 
-ansible all -i inventories/setup.yml -m yum -a "name=httpd state=absent" --become
+```
 
-![image](https://github.com/NathanGlmt/DevOpsCourse/assets/74351197/03eb6c7e-278d-4753-9f88-1d7e6cba078c)
+```shell
+# Cette commande cible tous les hôtes spécifiés dans l'inventaire 'setup.yml'
+ansible all \
+  -i inventories/setup.yml \ # Spécifie le chemin vers le fichier d'inventaire.
+  -m setup \ # Utilise le module 'setup' pour récupérer les faits système.
+  -a "filter=ansible_distribution*" # Filtre les faits récupérés pour inclure uniquement ceux commençant par 'ansible_distribution'.
+```
+
+```shell
+ansible all \
+  -i inventories/setup.yml \ # Spécifie le chemin vers le fichier d'inventaire.
+  -m yum \ # Utilise le module 'yum' pour gérer les paquets.
+  -a "name=httpd state=absent" \ # Spécifie le nom du paquet à supprimer et son état (absent).
+  --become # Permet à Ansible de devenir superutilisateur (root) si nécessaire pour exécuter les commandes.
+```
 
 ## 3-2 Document your playbook
 
 playbook.yml
 ```yml
 - hosts: all
+  # Définit les hôtes sur lesquels le playbook sera exécuté.
+
   gather_facts: false
+  # Désactive la collecte des faits système pour améliorer les performances, car la collecte des faits n'est pas nécessaire dans ce playbook.
+
   become: true
-  
+  # Active l'utilisation des privilèges de superutilisateur (sudo) pour exécuter les tâches en tant que root.
+
   roles: docker
+  # Spécifie le rôle 'docker' à inclure dans ce playbook.
+
 ```
 
 roles/docker/tasks/main.yml
@@ -237,112 +272,73 @@ roles/docker/tasks/main.yml
 # tasks file for roles/docker
 
 - name: Install device-mapper-persistent-data
+  # Installe le paquet 'device-mapper-persistent-data' nécessaire pour Docker.
   yum:
     name: device-mapper-persistent-data
     state: latest
 
 - name: Install lvm2
+  # Installe le paquet 'lvm2' nécessaire pour Docker.
   yum:
     name: lvm2
     state: latest
 
 - name: add repo docker
+  # Ajoute le dépôt Docker à la configuration yum.
   command:
     cmd: sudo yum-config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
 
 - name: Install Docker
+  # Installe le paquet 'docker-ce'.
   yum:
     name: docker-ce
     state: present
 
 - name: Install python3
+  # Installe le paquet 'python3' pour supporter l'exécution de tâches avec Python 3.
   yum:
     name: python3
     state: present
 
 - name: Install docker with Python 3
+  # Installe le module Python 'docker' nécessaire pour la gestion de Docker.
   pip:
     name: docker
     executable: pip3
   vars:
     ansible_python_interpreter: /usr/bin/python3
+    # Spécifie l'interpréteur Python à utiliser pour l'exécution des tâches avec Python 3.
 
 - name: Make sure Docker is running
+  # Vérifie que le service Docker est démarré et s'il ne l'est pas, le démarre.
   service: name=docker state=started
   tags: docker
+  # Ajoute le tag 'docker' à cette tâche pour permettre son exécution sélective avec la commande `ansible-playbook --tags docker playbook.yml`.
+
 ```
 
 ## 3-3 Document your docker_container tasks configuration
-inventories/setup.yml
-```yml
-all:
- vars:
-   ansible_user: centos
-   ansible_ssh_private_key_file: /home/nathan/CPE/DevOpsCourse/.ssh/id_rsa
-   POSTGRES_USR: "usr"
-   POSTGRES_DB: "db"
-   POSTGRES_PASSWORD: "pwd"
-   POSTGRES_URL: "database:5432"
- children:
-   prod:
-     hosts: centos@nathan.guillemette.takima.cloud
-```
-
-roles/docker/tasks/main.yml
-```yml
----
-# tasks file for roles/docker
-
-- name: Install device-mapper-persistent-data
-  yum:
-    name: device-mapper-persistent-data
-    state: latest
-
-- name: Install lvm2
-  yum:
-    name: lvm2
-    state: latest
-
-- name: add repo docker
-  command:
-    cmd: sudo yum-config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
-
-- name: Install Docker
-  yum:
-    name: docker-ce
-    state: present
-
-- name: Install python3
-  yum:
-    name: python3
-    state: present
-
-- name: Install docker with Python 3
-  pip:
-    name: docker
-    executable: pip3
-  vars:
-    ansible_python_interpreter: /usr/bin/python3
-
-- name: Make sure Docker is running
-  service: name=docker state=started
-  tags: docker
-```
 
 roles/create_networks/tasks/main.yml
 ```yml
 ---
 # tasks file for roles/create_network
+
 - name: Create Docker Network
+  # Crée un réseau Docker pour connecter les conteneurs entre eux.
   docker_network:
     name: my_network
+    # Nom du réseau Docker à créer.
+
 ```
 
 roles/launch_app/tasks/main.yml
 ```yml
 ---
 # tasks file for roles/launch_app
+
 - name: Run App
+  # Lance le conteneur de l'application backend.
   community.docker.docker_container:
     name: backendapistudent
     image: nathanglmt/backendapi:1.1
@@ -353,13 +349,17 @@ roles/launch_app/tasks/main.yml
       POSTGRES_DB: "{{ POSTGRES_DB }}"
       POSTGRES_PASSWORD: "{{ POSTGRES_PASSWORD }}"
       POSTGRES_URL: "{{ POSTGRES_URL }}"
+      # Configuration des variables d'environnement pour l'application backend.
+
 ```
 
 roles/launch_database/tasks/main.yml
 ```yml
 ---
 # tasks file for roles/launch_database
+
 - name: Run Database
+  # Lance le conteneur de la base de données PostgreSQL.
   community.docker.docker_container:
     name: database
     image: nathanglmt/postgres-database:1.0
@@ -369,35 +369,30 @@ roles/launch_database/tasks/main.yml
       POSTGRES_USR: "{{ POSTGRES_USR }}"
       POSTGRES_DB: "{{ POSTGRES_DB }}"
       POSTGRES_PASSWORD: "{{ POSTGRES_PASSWORD }}"
+      # Configuration des variables d'environnement pour la base de données PostgreSQL.
     volumes:
       - /data
+      # Montage d'un volume pour stocker les données de la base de données.
+
 ```
 
 roles/launch_proxy/tasks/main.yml
 ```yml
 ---
 # tasks file for roles/launch_proxy
+
 - name: Run HTTPD
+  # Lance le conteneur du serveur web Apache.
   community.docker.docker_container:
     name: httpd
     image: nathanglmt/httpd:1.0
     ports:
       - "80:80"
+      # Mapping du port 80 de l'hôte au port 80 du conteneur.
     networks:
       - name: "my_network"
+      # Liaison au réseau Docker.
+
 ```
 
-playbook.yml
-```yml
-- hosts: all
-  gather_facts: false
-  become: true
-
-  roles:
-    - docker
-    - create_network
-    - launch_database
-    - launch_app
-    - launch_proxy
-```
 
