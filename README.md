@@ -35,7 +35,7 @@ docker run \
 nathanglmt/myfirstpostgres # nom de l'image qui instancie le container
 ```
 
-## Backend simple api
+## 1-2 Why do we need a multistage build? And explain each step of this dockerfile
 On fait du multistage car il est nécessaire de build le java avec un jdk dans un premier temps avant de lancer le jar.
 
 ``` yml
