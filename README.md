@@ -18,13 +18,13 @@ COPY 01-CreateScheme.sql /docker-entrypoint-initdb.d
 COPY 02-InsertData.sql /docker-entrypoint-initdb.d
 ```
 Je build l'image docker avec la commande : 
-``` bash
+``` shell
 docker build -t nathanglmt/myfirstpostgres .
 # -t pour donner un tag
 # . pour dire que le Dockerfile est dans le dossier courant
 ```
 Pour lancer un container de la base de données (nathanglmt/myfirstpostgres) j'utilise la commande suivante : 
-``` bash
+``` shell
 docker run \
 -p 8888:5432 \ # expose les ports (5432 du docker, 8888 du host)
 --name myfirstpostgres \ #  donne un nom au container
