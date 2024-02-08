@@ -3,21 +3,23 @@ Rendu des TP du cours DevOps
 
 
 # TP1 - Docker
-## Database
+## 1-1 Document your database container essentials: commands and Dockerfile
 
 Pour instancier l'image de la base de données, j'utilise le Dockerfile suivant : 
 ``` Dockerfile
-FROM postgres:14.1-alpine
+FROM postgres:14.1-alpine 
 
+# On instancie les variables d'environnement POSTGRES_DB et POSTGRES_USER
 ENV POSTGRES_DB=db \
    POSTGRES_USER=usr
 
+#On insère les scripts de création et d'insertion de données dans le dossier docker-entrypoint-initdb.d
 COPY 01-CreateScheme.sql /docker-entrypoint-initdb.d
 COPY 02-InsertData.sql /docker-entrypoint-initdb.d
 ```
-Avec la commande : 
+Je build l'image docker avec la commande : 
 ```
-docker build -t nathanglmt/myfirstpostgres .
+docker build -t nathanglmt/myfirstpostgres . 
 ```
 Pour lancer un container de la base de données (nathanglmt/myfirstpostgres) j'utilise la commande suivante : 
 ``` bash
