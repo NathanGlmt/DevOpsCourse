@@ -156,7 +156,43 @@ docker push nathanglmt/httpd:1.0
 Testcontainers est une bibliothèque Java qui permet d’instancier un conteneur Docker lors des tests, qui permet de fournir des instances légères et jetables de base de données. 
 
 ## 2-2 Document your Github Actions configurations
+```yml
+name: CI devops 2024 # Nom du pipeline
 
+# Lancement du pipeline sur l'évènement push sur les branches main et develop
+on:
+  push:
+    branches: 
+      - main
+      - develop
+jobs:
+  test-backend: 
+    # Définition d'un job nommé 'test-backend'.
+    runs-on: ubuntu-22.04
+    # Spécification de l'environnement d'exécution : Ubuntu 22.04.
+
+    steps:
+      # Étapes du job :
+
+      - name: Checkout code
+        # Étape pour récupérer le code source du dépôt.
+        uses: actions/checkout@v2.5.0
+        # Utilisation de l'action 'checkout' pour récupérer le code.
+
+      - name: Set up JDK 17
+        # Étape pour configurer JDK 17.
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+          # Configuration de JDK 17 avec AdoptOpenJDK.
+
+      - name: Build and test with Maven
+        # Étape pour construire et tester avec Maven.
+        run: mvn clean install --file docker/backend/simple-api-student-main/
+        # Commande pour nettoyer le projet, construire et exécuter les tests avec Maven.
+        # Paramètre --file pour indiquer le path faire Dockerfile
+```
 
 ## 2-3 Document your quality gate configuration
 
