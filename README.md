@@ -195,8 +195,20 @@ jobs:
 ```
 
 ## 2-3 Document your quality gate configuration
+```yml
+mvn -B verify sonar:sonar -Dsonar.projectKey=NathanGlmt_DevOpsCourse -Dsonar.organization=nathanglmt -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}  --file docker/backend/simple-api-student-main/
 
+  # - "-B": Mode batch pour une exécution non interactive.
+  # - "verify": Exécute toutes les phases de construction jusqu'à la phase de vérification.
+  # - "sonar:sonar": Lance l'analyse de code avec SonarScanner.
+  # - "-Dsonar.projectKey=NathanGlmt_DevOpsCourse": Clé du projet sur SonarCloud.
+  # - "-Dsonar.organization=nathanglmt": Organisation sur SonarCloud.
+  # - "-Dsonar.host.url=https://sonarcloud.io": URL de SonarCloud.
+  # - "-Dsonar.login=${{ secrets.SONAR_TOKEN }}": Token d'accès pour se connecter à SonarCloud (stocké en tant que secret GitHub).
+  # - "--file docker/backend/simple-api-student-main/": Chemin vers le fichier pom.xml du projet Maven à analyser.
 
+# 
+```
 # TP3 - Ansible
 Contenu de mon setup.yml : 
 
