@@ -18,19 +18,21 @@ COPY 01-CreateScheme.sql /docker-entrypoint-initdb.d
 COPY 02-InsertData.sql /docker-entrypoint-initdb.d
 ```
 Je build l'image docker avec la commande : 
-```
-docker build -t nathanglmt/myfirstpostgres . 
+``` bash
+docker build -t nathanglmt/myfirstpostgres .
+# -t pour donner un tag
+# . pour dire que le Dockerfile est dans le dossier courant
 ```
 Pour lancer un container de la base de données (nathanglmt/myfirstpostgres) j'utilise la commande suivante : 
 ``` bash
 docker run \
--p 8888:5432 \
---name myfirstpostgres \
--e POSTGRES_PASSWORD=pwd \
---network app-network \
--v ~/CPE/DevOpsCourse/docker/database/data:/var/lib/postgresql/data \
--d \
-nathanglmt/myfirstpostgres
+-p 8888:5432 \ # expose les ports (5432 du docker, 8888 du host)
+--name myfirstpostgres \ #  donne un nom au container
+-e POSTGRES_PASSWORD=pwd \ # instancie une variable d'environnement
+--network app-network \ # indique le network du container
+-v ~/CPE/DevOpsCourse/docker/database/data:/var/lib/postgresql/data \ # choisir un volume  
+-d \ # mode detached, le container démarre comme un background process
+nathanglmt/myfirstpostgres # nom de l'image qui instancie le container
 ```
 
 ## Backend simple api
